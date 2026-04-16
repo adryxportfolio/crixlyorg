@@ -5,13 +5,13 @@
 <p align="center">
   <a href="#quickstart"><strong>Quickstart</strong></a> &middot;
   <a href="https://crixly.ing/docs"><strong>Docs</strong></a> &middot;
-  <a href="https://github.com/crixlyai/crixly"><strong>GitHub</strong></a> &middot;
+  <a href="https://github.com/adryxportfolio/crixlyorg"><strong>GitHub</strong></a> &middot;
   <a href="https://discord.gg/m4HZY7xNG3"><strong>Discord</strong></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/crixlyai/crixly/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a>
-  <a href="https://github.com/crixlyai/crixly/stargazers"><img src="https://img.shields.io/github/stars/crixlyai/crixly?style=flat" alt="Stars" /></a>
+  <a href="https://github.com/adryxportfolio/crixlyorg/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a>
+  <a href="https://github.com/adryxportfolio/crixlyorg/stargazers"><img src="https://img.shields.io/github/stars/adryxportfolio/crixlyorg?style=flat" alt="Stars" /></a>
   <a href="https://discord.gg/m4HZY7xNG3"><img src="https://img.shields.io/discord/000000000?label=discord" alt="Discord" /></a>
 </p>
 
@@ -175,28 +175,28 @@ Open source. Self-hosted. No Crixly account required.
 
 ### One-click installer (recommended)
 
-Single universal one-liner (all platforms with Node.js installed):
+Single universal one-liner (all platforms with Node.js + git):
 
 ```bash
-npx --yes crixlyai onboard --yes
+git clone https://github.com/adryxportfolio/crixlyorg.git && cd crixlyorg && corepack enable && corepack prepare pnpm@9.15.4 --activate && pnpm install && pnpm crixlyai onboard --yes
 ```
 
 macOS / Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/crixlyai/crixly/master/scripts/install-crixly.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adryxportfolio/crixlyorg/main/scripts/install-crixly.sh | bash
 ```
 
 Windows (PowerShell):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/crixlyai/crixly/master/scripts/install-crixly.ps1 | iex"
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/adryxportfolio/crixlyorg/main/scripts/install-crixly.ps1 | iex"
 ```
 
 ### Direct one-liner
 
 ```bash
-npx crixlyai onboard --yes
+pnpm crixlyai onboard --yes
 ```
 
 ### Package-manager installs
@@ -218,10 +218,10 @@ crixly onboard --yes
 Or manually:
 
 ```bash
-git clone https://github.com/crixlyai/crixly.git
-cd crixly
+git clone https://github.com/adryxportfolio/crixlyorg.git
+cd crixlyorg
 pnpm install
-pnpm dev
+pnpm crixlyai onboard --yes
 ```
 
 This starts the API server at `http://localhost:3100`. An embedded PostgreSQL database is created automatically — no setup required.
@@ -291,8 +291,8 @@ We welcome contributions. See the [contributing guide](CONTRIBUTING.md) for deta
 ## Community
 
 - [Discord](https://discord.gg/m4HZY7xNG3) — Join the community
-- [GitHub Issues](https://github.com/crixlyai/crixly/issues) — bugs and feature requests
-- [GitHub Discussions](https://github.com/crixlyai/crixly/discussions) — ideas and RFC
+- [GitHub Issues](https://github.com/adryxportfolio/crixlyorg/issues) — bugs and feature requests
+- [GitHub Discussions](https://github.com/adryxportfolio/crixlyorg/discussions) — ideas and RFC
 
 <br/>
 
@@ -302,7 +302,7 @@ MIT &copy; 2026 Crixly
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/image?repos=crixlyai/crixly&type=date&legend=top-left)](https://www.star-history.com/?repos=crixlyai%2Fcrixly&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/image?repos=adryxportfolio/crixlyorg&type=date&legend=top-left)](https://www.star-history.com/?repos=adryxportfolio%2Fcrixlyorg&type=date&legend=top-left)
 
 <br/>
 

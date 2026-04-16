@@ -7,7 +7,12 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 if ! command -v npx >/dev/null 2>&1; then
-  echo "Error: npx is required but was not found in PATH." >&2
+  echo "Error: npm/npx is required but was not found in PATH." >&2
+  exit 1
+fi
+
+if ! command -v git >/dev/null 2>&1; then
+  echo "Error: git is required. Install git first: https://git-scm.com" >&2
   exit 1
 fi
 
@@ -17,10 +22,30 @@ if [ "$NODE_MAJOR" -lt 20 ]; then
   exit 1
 fi
 
-echo "Installing and starting Crixly..."
-echo "This may take a minute on first run."
+if ! command -v pnpm >/dev/null 2>&1; then
+  if ! command -v corepack >/dev/null 2>&1; then
+    echo "Error: pnpm is required (or corepack to install it)." >&2
+    exit 1
+  fi
+  corepack enable >/dev/null 2>&1 || true
+  corepack prepare pnpm@9.15.4 --activate >/dev/null 2>&1
+fi
 
-npx --yes crixlyai onboard --yes
+REPO_URL="${CRIXLY_REPO_URL:-https://github.com/adryxportfolio/crixlyorg.git}"
+INSTALL_DIR="${CRIXLY_INSTALL_DIR:-$HOME/crixlyorg}"
+
+echo "Installing and starting Crixly from $REPO_URL..."
+echo "Install directory: $INSTALL_DIR"
+
+if [ -d "$INSTALL_DIR/.git" ]; then
+  git -C "$INSTALL_DIR" pull --ff-only
+else
+  git clone "$REPO_URL" "$INSTALL_DIR"
+fi
+
+cd "$INSTALL_DIR"
+pnpm install
+pnpm crixlyai onboard --yes
 
 if command -v xdg-open >/dev/null 2>&1; then
   xdg-open "http://localhost:3100" >/dev/null 2>&1 || true
