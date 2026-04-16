@@ -315,12 +315,12 @@ importers:
       '@codemirror/view':
         specifier: ^6.28.0
         version: 6.39.15
-      '@lezer/highlight':
-        specifier: ^1.2.1
-        version: 1.2.3
       '@crixlyai/plugin-sdk':
         specifier: workspace:*
         version: link:../../sdk
+      '@lezer/highlight':
+        specifier: ^1.2.1
+        version: 1.2.3
       codemirror:
         specifier: ^6.0.1
         version: 6.0.2
@@ -503,9 +503,6 @@ importers:
       express:
         specifier: ^5.1.0
         version: 5.2.1
-      hermes-crixly-adapter:
-        specifier: 0.1.1
-        version: 0.1.1
       jsdom:
         specifier: ^28.1.0
         version: 28.1.0(@noble/hashes@2.0.1)
@@ -579,21 +576,6 @@ importers:
 
   ui:
     dependencies:
-      '@dnd-kit/core':
-        specifier: ^6.3.1
-        version: 6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@dnd-kit/sortable':
-        specifier: ^10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
-      '@dnd-kit/utilities':
-        specifier: ^3.2.2
-        version: 3.2.2(react@19.2.4)
-      '@lexical/link':
-        specifier: 0.35.0
-        version: 0.35.0
-      '@mdxeditor/editor':
-        specifier: ^3.52.4
-        version: 3.52.4(@codemirror/language@6.12.1)(@lezer/highlight@1.2.3)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yjs@13.6.29)
       '@crixlyai/adapter-claude-local':
         specifier: workspace:*
         version: link:../packages/adapters/claude-local
@@ -621,6 +603,21 @@ importers:
       '@crixlyai/shared':
         specifier: workspace:*
         version: link:../packages/shared
+      '@dnd-kit/core':
+        specifier: ^6.3.1
+        version: 6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@dnd-kit/sortable':
+        specifier: ^10.0.0
+        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
+      '@dnd-kit/utilities':
+        specifier: ^3.2.2
+        version: 3.2.2(react@19.2.4)
+      '@lexical/link':
+        specifier: 0.35.0
+        version: 0.35.0
+      '@mdxeditor/editor':
+        specifier: ^3.52.4
+        version: 3.52.4(@codemirror/language@6.12.1)(@lezer/highlight@1.2.3)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yjs@13.6.29)
       '@radix-ui/react-slot':
         specifier: ^1.2.4
         version: 1.2.4(@types/react@19.2.14)(react@19.2.4)
@@ -2039,9 +2036,6 @@ packages:
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
-
-  '@crixlyai/adapter-utils@0.3.1':
-    resolution: {integrity: sha512-W66k+hJkQE8ma0asM/Sd90AC8HHy/BLG/sd0aOC+rDWw+gOasQyUkTnDoPv1zhQuTyKEEvLFV6ByOOKqEiAz/A==}
 
   '@paralleldrive/cuid2@2.3.1':
     resolution: {integrity: sha512-XO7cAxhnTZl0Yggq6jOgjiOHhbgcO4NqFqwSmQpjK3b6TEE6Uj/jfSk6wzYyemh3+I0sHirKSetjQwn5cZktFw==}
@@ -4467,10 +4461,6 @@ packages:
 
   help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
-
-  hermes-crixly-adapter@0.1.1:
-    resolution: {integrity: sha512-kbdX349VxExSkVL8n4RwTpP9fUBf2yWpsTsJp02X12A9NynRJatlpYqt0vEkFyE/X7qEXqdJvpBm9tlvUHahsA==}
-    engines: {node: '>=20.0.0'}
 
   html-encoding-sniffer@6.0.0:
     resolution: {integrity: sha512-CV9TW3Y3f8/wT0BRFc1/KAVQ3TUHiXmaAb6VW9vtiMFf7SLoMd1PdAc4W3KFOFETBJUb90KatHqlsZMWV+R9Gg==}
@@ -7740,8 +7730,6 @@ snapshots:
 
   '@open-draft/deferred-promise@2.2.0': {}
 
-  '@crixlyai/adapter-utils@0.3.1': {}
-
   '@paralleldrive/cuid2@2.3.1':
     dependencies:
       '@noble/hashes': 1.8.0
@@ -10336,11 +10324,6 @@ snapshots:
       '@types/hast': 3.0.4
 
   help-me@5.0.0: {}
-
-  hermes-crixly-adapter@0.1.1:
-    dependencies:
-      '@crixlyai/adapter-utils': 0.3.1
-      picocolors: 1.1.1
 
   html-encoding-sniffer@6.0.0(@noble/hashes@2.0.1):
     dependencies:
