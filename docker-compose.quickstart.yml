@@ -1,0 +1,18 @@
+services:
+  crixly:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${CRIXLY_PORT:-3100}:3100"
+    environment:
+      HOST: "0.0.0.0"
+      CRIXLY_HOME: "/crixly"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      CRIXLY_DEPLOYMENT_MODE: "authenticated"
+      CRIXLY_DEPLOYMENT_EXPOSURE: "private"
+      CRIXLY_PUBLIC_URL: "${CRIXLY_PUBLIC_URL:-http://localhost:3100}"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
+    volumes:
+      - "${CRIXLY_DATA_DIR:-./data/docker-crixly}:/crixly"

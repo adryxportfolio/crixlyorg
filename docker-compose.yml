@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: crixly
+      POSTGRES_PASSWORD: crixly
+      POSTGRES_DB: crixly
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crixly -d crixly"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  server:
+    build: .
+    ports:
+      - "3100:3100"
+    environment:
+      DATABASE_URL: postgres://crixly:crixly@db:5432/crixly
+      PORT: "3100"
+      SERVE_UI: "true"
+      CRIXLY_DEPLOYMENT_MODE: "authenticated"
+      CRIXLY_DEPLOYMENT_EXPOSURE: "private"
+      CRIXLY_PUBLIC_URL: "${CRIXLY_PUBLIC_URL:-http://localhost:3100}"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
+    volumes:
+      - crixly-data:/crixly
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  crixly-data:
