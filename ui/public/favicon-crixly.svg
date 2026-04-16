@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Crixly">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="#0b1020" />
+  <path
+    d="M44 20c-2.8-2.8-6.5-4.2-11.1-4.2-9 0-16.4 7.3-16.4 16.2S23.9 48.2 33 48.2c4.5 0 8.2-1.4 11-4.2l-4.2-4.2c-1.7 1.6-3.9 2.4-6.8 2.4-5.5 0-9.9-4.4-9.9-10.1S27.5 22 33 22c2.8 0 5.1.8 6.8 2.4z"
+    fill="url(#g)"
+  />
+</svg>
