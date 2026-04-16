@@ -193,6 +193,13 @@ Windows (PowerShell):
 powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/adryxportfolio/crixlyorg/main/scripts/install-crixly.ps1 | iex"
 ```
 
+After install, you can run from any terminal:
+
+```powershell
+crixlyai doctor
+crixlyai run
+```
+
 ### Direct one-liner
 
 ```bash
