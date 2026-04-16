@@ -200,6 +200,13 @@ crixlyai doctor
 crixlyai run
 ```
 
+Alias command is also available:
+
+```powershell
+crixly doctor
+crixly run
+```
+
 ### Direct one-liner
 
 ```bash

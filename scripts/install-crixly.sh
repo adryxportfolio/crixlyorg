@@ -46,7 +46,7 @@ fi
 cd "$INSTALL_DIR"
 pnpm install
 
-# Install a global crixlyai shim into user PATH.
+# Install global crixlyai/crixly shims into user PATH.
 SHIM_DIR="${HOME}/.crixly/bin"
 mkdir -p "$SHIM_DIR"
 cat > "$SHIM_DIR/crixlyai" <<EOF
@@ -54,6 +54,11 @@ cat > "$SHIM_DIR/crixlyai" <<EOF
 pnpm --dir "$INSTALL_DIR" crixlyai "\$@"
 EOF
 chmod +x "$SHIM_DIR/crixlyai"
+cat > "$SHIM_DIR/crixly" <<EOF
+#!/usr/bin/env bash
+pnpm --dir "$INSTALL_DIR" crixlyai "\$@"
+EOF
+chmod +x "$SHIM_DIR/crixly"
 
 case ":${PATH}:" in
   *":${SHIM_DIR}:"*) ;;
@@ -79,5 +84,5 @@ fi
 echo
 echo "Crixly install complete."
 echo "Open http://localhost:3100"
-echo "Global command installed: crixlyai"
+echo "Global commands installed: crixlyai, crixly"
 echo "If your current shell cannot find it, open a new terminal window."

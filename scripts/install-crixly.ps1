@@ -41,40 +41,39 @@ if (Test-Path (Join-Path $installDir ".git")) {
 Set-Location $installDir
 pnpm install
 
-# Install a global crixlyai shim into user PATH.
+# Install global crixlyai/crixly shims into user PATH.
 $shimDir = Join-Path $HOME ".crixly\bin"
 New-Item -ItemType Directory -Path $shimDir -Force | Out-Null
 
-$cmdShimPath = Join-Path $shimDir "crixlyai.cmd"
-$psShimPath = Join-Path $shimDir "crixlyai.ps1"
-
-$cmdShim = @"
+function Write-ShimFiles([string]$baseName) {
+  $cmdShimPath = Join-Path $shimDir "$baseName.cmd"
+  $psShimPath = Join-Path $shimDir "$baseName.ps1"
+  $cmdShim = @"
 @echo off
 pnpm --dir "$installDir" crixlyai %*
 exit /b %ERRORLEVEL%
 "@
-Set-Content -Path $cmdShimPath -Value $cmdShim -Encoding ASCII
-
-$psShim = @"
+  Set-Content -Path $cmdShimPath -Value $cmdShim -Encoding ASCII
+  $psShim = @"
 `$ErrorActionPreference = "Stop"
 pnpm --dir "$installDir" crixlyai @args
 exit `$LASTEXITCODE
 "@
-Set-Content -Path $psShimPath -Value $psShim -Encoding ASCII
+  Set-Content -Path $psShimPath -Value $psShim -Encoding ASCII
+}
+
+Write-ShimFiles "crixlyai"
+Write-ShimFiles "crixly"
 
 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
 $pathEntries = @()
 if ($userPath) {
   $pathEntries = $userPath.Split(";") | Where-Object { $_ -ne "" }
 }
-if (-not ($pathEntries -contains $shimDir)) {
-  $newUserPath = if ($userPath -and $userPath.Trim().Length -gt 0) {
-    "$userPath;$shimDir"
-  } else {
-    $shimDir
-  }
-  [Environment]::SetEnvironmentVariable("Path", $newUserPath, "User")
-}
+# Ensure shim dir is first so it wins over stale global npm bins.
+$pathEntries = @($pathEntries | Where-Object { $_ -ne $shimDir })
+$newUserPath = (@($shimDir) + $pathEntries) -join ";"
+[Environment]::SetEnvironmentVariable("Path", $newUserPath, "User")
 if (-not (($env:Path -split ";") -contains $shimDir)) {
   $env:Path = "$shimDir;$env:Path"
 }
@@ -90,5 +89,5 @@ try {
 Write-Host ""
 Write-Host "Crixly install complete."
 Write-Host "Open http://localhost:3100"
-Write-Host "Global command installed: crixlyai"
+Write-Host "Global commands installed: crixlyai, crixly"
 Write-Host "If an older terminal cannot find it, open a new terminal window."
