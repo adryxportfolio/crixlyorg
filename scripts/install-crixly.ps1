@@ -48,10 +48,10 @@ function Ensure-Pnpm {
   corepack prepare pnpm@9.15.4 --activate | Out-Null
 }
 
-function Wait-Health([int]$basePort = 3100, [int]$timeoutSeconds = 90) {
+function Wait-Health([int]$basePort = 3100, [int]$timeoutSeconds = 180, [int]$maxPortOffset = 100) {
   $started = Get-Date
   while (((Get-Date) - $started).TotalSeconds -lt $timeoutSeconds) {
-    foreach ($offset in 0..10) {
+    foreach ($offset in 0..$maxPortOffset) {
       $port = $basePort + $offset
       $url = "http://localhost:$port/api/health"
       try {
@@ -75,6 +75,7 @@ Ensure-Pnpm
 $repoUrl = if ($env:CRIXLY_REPO_URL) { $env:CRIXLY_REPO_URL } else { "https://github.com/adryxportfolio/crixlyorg.git" }
 $installDir = if ($env:CRIXLY_INSTALL_DIR) { $env:CRIXLY_INSTALL_DIR } else { Join-Path $HOME "crixlyorg" }
 $basePort = if ($env:PORT) { [int]$env:PORT } else { 3100 }
+$crixlyHome = if ($env:CRIXLY_HOME) { $env:CRIXLY_HOME } else { Join-Path $installDir ".crixly" }
 
 Write-Section "Preparing install directory"
 Write-Host "Repository: $repoUrl"
@@ -86,6 +87,8 @@ if (Test-Path (Join-Path $installDir ".git")) {
 }
 
 Set-Location $installDir
+$env:CRIXLY_HOME = $crixlyHome
+New-Item -ItemType Directory -Path $crixlyHome -Force | Out-Null
 
 Write-Section "Installing dependencies"
 pnpm install
@@ -133,12 +136,17 @@ if (-not (($env:Path -split ";") -contains $shimDir)) {
 }
 
 Write-Section "Starting CRIXLY"
-$startCmd = "cd /d `"$installDir`" && pnpm start"
+$pnpmCommandSource = (Get-Command pnpm -ErrorAction Stop).Source
+$pnpmCmdPath = [System.IO.Path]::ChangeExtension($pnpmCommandSource, ".cmd")
+if (-not (Test-Path $pnpmCmdPath)) {
+  $pnpmCmdPath = "pnpm"
+}
+$startCmd = 'set "CRIXLY_HOME={0}" && cd /d "{1}" && "{2}" start' -f $crixlyHome, $installDir, $pnpmCmdPath
 Start-Process -FilePath "cmd.exe" -ArgumentList "/c", $startCmd -WindowStyle Minimized | Out-Null
 
-$runningPort = Wait-Health -basePort $basePort -timeoutSeconds 90
+$runningPort = Wait-Health -basePort $basePort -timeoutSeconds 180 -maxPortOffset 100
 if ($null -eq $runningPort) {
-  throw "CRIXLY started command was launched, but health check failed for ports $basePort-$($basePort+10)"
+  throw "CRIXLY started command was launched, but health check failed for ports $basePort-$($basePort+100)"
 }
 
 try {

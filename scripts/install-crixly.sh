@@ -56,10 +56,11 @@ ensure_pnpm() {
 
 wait_for_health() {
   local base_port="$1"
-  local timeout="${2:-90}"
+  local timeout="${2:-180}"
+  local max_offset="${3:-100}"
   local elapsed=0
   while [ "$elapsed" -lt "$timeout" ]; do
-    for offset in $(seq 0 10); do
+    for offset in $(seq 0 "$max_offset"); do
       local port=$((base_port + offset))
       local url="http://localhost:${port}/api/health"
       if curl -fsS "$url" >/dev/null 2>&1; then
@@ -84,6 +85,7 @@ ensure_pnpm
 REPO_URL="${CRIXLY_REPO_URL:-https://github.com/adryxportfolio/crixlyorg.git}"
 INSTALL_DIR="${CRIXLY_INSTALL_DIR:-$HOME/crixlyorg}"
 BASE_PORT="${PORT:-3100}"
+CRIXLY_HOME="${CRIXLY_HOME:-$INSTALL_DIR/.crixly}"
 
 section "Preparing install directory"
 echo "Installing and starting Crixly from $REPO_URL..."
@@ -96,6 +98,8 @@ else
 fi
 
 cd "$INSTALL_DIR"
+export CRIXLY_HOME
+mkdir -p "$CRIXLY_HOME"
 
 section "Installing dependencies"
 pnpm install
@@ -136,11 +140,11 @@ esac
 
 section "Starting CRIXLY"
 mkdir -p "${HOME}/.crixly/logs"
-nohup pnpm start > "${HOME}/.crixly/logs/server.log" 2>&1 &
+nohup env CRIXLY_HOME="$CRIXLY_HOME" pnpm start > "${HOME}/.crixly/logs/server.log" 2>&1 &
 
-RUNNING_PORT="$(wait_for_health "$BASE_PORT" 90 || true)"
+RUNNING_PORT="$(wait_for_health "$BASE_PORT" 180 100 || true)"
 if [ -z "$RUNNING_PORT" ]; then
-  echo "Error: CRIXLY failed health check on ports ${BASE_PORT}-$((BASE_PORT + 10))" >&2
+  echo "Error: CRIXLY failed health check on ports ${BASE_PORT}-$((BASE_PORT + 100))" >&2
   echo "Inspect logs: ${HOME}/.crixly/logs/server.log" >&2
   exit 1
 fi
