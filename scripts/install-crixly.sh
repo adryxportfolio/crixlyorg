@@ -116,11 +116,13 @@ mkdir -p "$SHIM_DIR"
 section "Installing global command shims"
 cat > "$SHIM_DIR/crixlyai" <<EOF
 #!/usr/bin/env bash
+export CRIXLY_HOME="$CRIXLY_HOME"
 pnpm --dir "$INSTALL_DIR" crixlyai "\$@"
 EOF
 chmod +x "$SHIM_DIR/crixlyai"
 cat > "$SHIM_DIR/crixly" <<EOF
 #!/usr/bin/env bash
+export CRIXLY_HOME="$CRIXLY_HOME"
 pnpm --dir "$INSTALL_DIR" crixlyai "\$@"
 EOF
 chmod +x "$SHIM_DIR/crixly"

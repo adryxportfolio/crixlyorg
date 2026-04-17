@@ -108,12 +108,14 @@ function Write-ShimFiles([string]$baseName) {
   $psShimPath = Join-Path $shimDir "$baseName.ps1"
   $cmdShim = @"
 @echo off
+set "CRIXLY_HOME=$crixlyHome"
 pnpm --dir "$installDir" crixlyai %*
 exit /b %ERRORLEVEL%
 "@
   Set-Content -Path $cmdShimPath -Value $cmdShim -Encoding ASCII
   $psShim = @"
 `$ErrorActionPreference = "Stop"
+$env:CRIXLY_HOME = "$crixlyHome"
 pnpm --dir "$installDir" crixlyai @args
 exit `$LASTEXITCODE
 "@

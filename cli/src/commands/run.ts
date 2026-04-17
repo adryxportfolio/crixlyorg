@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { spawn } from "node:child_process";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { bootstrapCeoInvite } from "./auth-bootstrap-ceo.js";
@@ -77,11 +78,26 @@ export async function runCommand(opts: RunOptions): Promise<void> {
     p.log.error(`No config found at ${configPath}.`);
     process.exit(1);
   }
+  sanitizeRuntimeEnvFromConfig(config);
 
   p.log.step("Starting Crixly server...");
-  const startedServer = await importServerEntry();
+  let startedServer: StartedServer | null = null;
+  const useEmbeddedDatabase = config.database.mode === "embedded-postgres";
 
-  if (shouldGenerateBootstrapInviteAfterStart(config)) {
+  try {
+    startedServer = await importServerEntry();
+  } catch (err) {
+    p.log.warn(
+      [
+        "Direct in-process startup failed; falling back to server subprocess.",
+        formatError(err),
+      ].join("\n"),
+    );
+    await startServerSubprocess({ useEmbeddedDatabase });
+    return;
+  }
+
+  if (startedServer && shouldGenerateBootstrapInviteAfterStart(config)) {
     p.log.step("Generating bootstrap CEO invite");
     await bootstrapCeoInvite({
       config: configPath,
@@ -89,6 +105,46 @@ export async function runCommand(opts: RunOptions): Promise<void> {
       baseUrl: resolveBootstrapInviteBaseUrl(config, startedServer),
     });
   }
+}
+
+async function startServerSubprocess(options: { useEmbeddedDatabase: boolean }): Promise<void> {
+  const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+  const isWindows = process.platform === "win32";
+  const command = isWindows ? "cmd.exe" : "pnpm";
+  const args = isWindows
+    ? ["/c", "pnpm", "--filter", "@crixlyai/server", "start"]
+    : ["--filter", "@crixlyai/server", "start"];
+
+  await new Promise<void>((resolve, reject) => {
+    const childEnv = { ...process.env };
+    if (options.useEmbeddedDatabase) {
+      // Force embedded mode even when .env contains DATABASE_URL defaults.
+      childEnv.DATABASE_URL = "";
+    }
+
+    const child = spawn(command, args, {
+      cwd: projectRoot,
+      stdio: "inherit",
+      env: childEnv,
+      shell: false,
+    });
+
+    child.on("error", (err) => {
+      reject(new Error(`Failed to launch server subprocess via ${command}: ${formatError(err)}`));
+    });
+
+    child.on("exit", (code, signal) => {
+      if (signal) {
+        reject(new Error(`Server subprocess exited due to signal ${signal}.`));
+        return;
+      }
+      if ((code ?? 1) !== 0) {
+        reject(new Error(`Server subprocess exited with code ${code ?? 1}.`));
+        return;
+      }
+      resolve();
+    });
+  });
 }
 
 function resolveBootstrapInviteBaseUrl(
@@ -179,6 +235,14 @@ async function importServerEntry(): Promise<StartedServer> {
 
 function shouldGenerateBootstrapInviteAfterStart(config: CrixlyConfig): boolean {
   return config.server.deploymentMode === "authenticated" && config.database.mode === "embedded-postgres";
+}
+
+function sanitizeRuntimeEnvFromConfig(config: CrixlyConfig): void {
+  // Honor config-selected embedded mode even when the host shell exports DATABASE_URL.
+  if (config.database.mode === "embedded-postgres" && process.env.DATABASE_URL) {
+    delete process.env.DATABASE_URL;
+    p.log.warn("Ignoring DATABASE_URL because config uses embedded-postgres.");
+  }
 }
 
 async function startServerFromModule(mod: unknown, label: string): Promise<StartedServer> {
