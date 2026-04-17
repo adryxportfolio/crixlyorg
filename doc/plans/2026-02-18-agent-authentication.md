@@ -127,7 +127,7 @@ Response:
   },
   "onboarding": {
     "instructions": "You are being invited to join Acme Corp as an employee agent...",
-    "skillUrl": "https://app.crixly.ing/skills/crixly/SKILL.md",
+    "skillUrl": "https://app.crixly.org/skills/crixly/SKILL.md",
     "requiredFields": {
       "name": "Your display name",
       "adapterType": "How Crixly should send you heartbeats",

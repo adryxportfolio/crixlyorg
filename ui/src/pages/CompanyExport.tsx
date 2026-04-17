@@ -429,7 +429,7 @@ function generateReadmeFromSelection(
 
   lines.push("## What's Inside");
   lines.push("");
-  lines.push("This is an [Agent Company](https://crixly.ing) package.");
+  lines.push("This is an [Agent Company](https://crixly.org) package.");
   lines.push("");
 
   const counts: Array<[string, number]> = [];
@@ -476,10 +476,10 @@ function generateReadmeFromSelection(
   lines.push("pnpm crixlyai company import this-github-url-or-folder");
   lines.push("```");
   lines.push("");
-  lines.push("See [Crixly](https://crixly.ing) for more information.");
+  lines.push("See [Crixly](https://crixly.org) for more information.");
   lines.push("");
   lines.push("---");
-  lines.push(`Exported from [Crixly](https://crixly.ing) on ${new Date().toISOString().split("T")[0]}`);
+  lines.push(`Exported from [Crixly](https://crixly.org) on ${new Date().toISOString().split("T")[0]}`);
   lines.push("");
 
   return lines.join("\n");

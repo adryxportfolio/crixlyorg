@@ -1,37 +1,84 @@
 $ErrorActionPreference = "Stop"
 
-if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-  Write-Error "Node.js 20+ is required. Install Node.js first: https://nodejs.org"
+function Write-Section([string]$message) {
+  Write-Host ""
+  Write-Host "==> $message" -ForegroundColor Cyan
 }
 
-if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
-  Write-Error "npm/npx is required but was not found in PATH."
+function Assert-Command([string]$name, [string]$installHint) {
+  if (-not (Get-Command $name -ErrorAction SilentlyContinue)) {
+    throw "$name is required. $installHint"
+  }
 }
 
-$nodeVersionRaw = node -p "process.versions.node"
-$nodeMajor = [int]($nodeVersionRaw.Split(".")[0])
-if ($nodeMajor -lt 20) {
-  Write-Error "Node.js 20+ is required. Current version: $(node -v)"
+function Ensure-Node {
+  if (Get-Command node -ErrorAction SilentlyContinue) {
+    $nodeVersionRaw = node -p "process.versions.node"
+    $nodeMajor = [int]($nodeVersionRaw.Split(".")[0])
+    if ($nodeMajor -ge 20) {
+      return
+    }
+  }
+
+  if (Get-Command winget -ErrorAction SilentlyContinue) {
+    Write-Host "Node.js 20+ not found. Installing via winget..."
+    winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements --silent | Out-Null
+    $env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
+  }
+
+  if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    throw "Node.js 20+ is required. Install from https://nodejs.org and rerun installer."
+  }
+
+  $nodeVersionRaw = node -p "process.versions.node"
+  $nodeMajor = [int]($nodeVersionRaw.Split(".")[0])
+  if ($nodeMajor -lt 20) {
+    throw "Node.js 20+ is required. Current version: $(node -v)"
+  }
 }
 
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-  Write-Error "git is required. Install git first: https://git-scm.com"
-}
-
-if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+function Ensure-Pnpm {
+  if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+    return
+  }
   if (-not (Get-Command corepack -ErrorAction SilentlyContinue)) {
-    Write-Error "pnpm is required (or corepack to install it)."
+    throw "pnpm is required and corepack is unavailable. Reinstall Node.js LTS."
   }
   corepack enable | Out-Null
   corepack prepare pnpm@9.15.4 --activate | Out-Null
 }
 
+function Wait-Health([int]$basePort = 3100, [int]$timeoutSeconds = 90) {
+  $started = Get-Date
+  while (((Get-Date) - $started).TotalSeconds -lt $timeoutSeconds) {
+    foreach ($offset in 0..10) {
+      $port = $basePort + $offset
+      $url = "http://localhost:$port/api/health"
+      try {
+        $response = Invoke-WebRequest -UseBasicParsing -Uri $url -TimeoutSec 2
+        if ($response.StatusCode -eq 200) {
+          return $port
+        }
+      } catch {
+      }
+    }
+    Start-Sleep -Seconds 2
+  }
+  return $null
+}
+
+Write-Section "Checking dependencies"
+Ensure-Node
+Assert-Command "git" "Install git from https://git-scm.com/download/win"
+Ensure-Pnpm
+
 $repoUrl = if ($env:CRIXLY_REPO_URL) { $env:CRIXLY_REPO_URL } else { "https://github.com/adryxportfolio/crixlyorg.git" }
 $installDir = if ($env:CRIXLY_INSTALL_DIR) { $env:CRIXLY_INSTALL_DIR } else { Join-Path $HOME "crixlyorg" }
+$basePort = if ($env:PORT) { [int]$env:PORT } else { 3100 }
 
-Write-Host "Installing and starting Crixly from $repoUrl..."
+Write-Section "Preparing install directory"
+Write-Host "Repository: $repoUrl"
 Write-Host "Install directory: $installDir"
-
 if (Test-Path (Join-Path $installDir ".git")) {
   git -C $installDir pull --ff-only
 } else {
@@ -39,9 +86,17 @@ if (Test-Path (Join-Path $installDir ".git")) {
 }
 
 Set-Location $installDir
+
+Write-Section "Installing dependencies"
 pnpm install
 
-# Install global crixlyai/crixly shims into user PATH.
+Write-Section "Applying runtime defaults"
+pnpm setup:env
+
+Write-Section "Building CRIXLY"
+pnpm build
+
+Write-Section "Installing global command shims"
 $shimDir = Join-Path $HOME ".crixly\bin"
 New-Item -ItemType Directory -Path $shimDir -Force | Out-Null
 
@@ -70,7 +125,6 @@ $pathEntries = @()
 if ($userPath) {
   $pathEntries = $userPath.Split(";") | Where-Object { $_ -ne "" }
 }
-# Ensure shim dir is first so it wins over stale global npm bins.
 $pathEntries = @($pathEntries | Where-Object { $_ -ne $shimDir })
 $newUserPath = (@($shimDir) + $pathEntries) -join ";"
 [Environment]::SetEnvironmentVariable("Path", $newUserPath, "User")
@@ -78,16 +132,21 @@ if (-not (($env:Path -split ";") -contains $shimDir)) {
   $env:Path = "$shimDir;$env:Path"
 }
 
-pnpm crixlyai onboard --yes
+Write-Section "Starting CRIXLY"
+$startCmd = "cd /d `"$installDir`" && pnpm start"
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c", $startCmd -WindowStyle Minimized | Out-Null
+
+$runningPort = Wait-Health -basePort $basePort -timeoutSeconds 90
+if ($null -eq $runningPort) {
+  throw "CRIXLY started command was launched, but health check failed for ports $basePort-$($basePort+10)"
+}
 
 try {
-  Start-Process "http://localhost:3100" | Out-Null
+  Start-Process "http://localhost:$runningPort" | Out-Null
 } catch {
-  # Ignore browser auto-open failures; installer already succeeded.
 }
 
 Write-Host ""
-Write-Host "Crixly install complete."
-Write-Host "Open http://localhost:3100"
+Write-Host "CRIXLY is running at http://localhost:$runningPort" -ForegroundColor Green
 Write-Host "Global commands installed: crixlyai, crixly"
-Write-Host "If an older terminal cannot find it, open a new terminal window."
+Write-Host "If this terminal cannot find commands yet, open a new terminal window."

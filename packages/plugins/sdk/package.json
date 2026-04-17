@@ -75,7 +75,7 @@
   ],
   "scripts": {
     "build": "pnpm --filter @crixlyai/shared build && tsc",
-    "clean": "rm -rf dist",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "typecheck": "pnpm --filter @crixlyai/shared build && tsc --noEmit",
     "dev:server": "tsx src/dev-cli.ts"
   },

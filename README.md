@@ -1,18 +1,16 @@
-<p align="center">
+﻿<p align="center">
   <img src="doc/assets/header.png" alt="Crixly — runs your business" width="720" />
 </p>
 
 <p align="center">
   <a href="#quickstart"><strong>Quickstart</strong></a> &middot;
-  <a href="https://crixly.ing/docs"><strong>Docs</strong></a> &middot;
+  <a href="https://docs.crixly.org"><strong>Docs</strong></a> &middot;
   <a href="https://github.com/adryxportfolio/crixlyorg"><strong>GitHub</strong></a> &middot;
-  <a href="https://discord.gg/m4HZY7xNG3"><strong>Discord</strong></a>
 </p>
 
 <p align="center">
   <a href="https://github.com/adryxportfolio/crixlyorg/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a>
   <a href="https://github.com/adryxportfolio/crixlyorg/stargazers"><img src="https://img.shields.io/github/stars/adryxportfolio/crixlyorg?style=flat" alt="Stars" /></a>
-  <a href="https://discord.gg/m4HZY7xNG3"><img src="https://img.shields.io/discord/000000000?label=discord" alt="Discord" /></a>
 </p>
 
 <br/>
@@ -178,7 +176,7 @@ Open source. Self-hosted. No Crixly account required.
 Single universal one-liner (all platforms with Node.js + git):
 
 ```bash
-git clone https://github.com/adryxportfolio/crixlyorg.git && cd crixlyorg && corepack enable && corepack prepare pnpm@9.15.4 --activate && pnpm install && pnpm crixlyai onboard --yes
+git clone https://github.com/adryxportfolio/crixlyorg.git && cd crixlyorg && corepack enable && corepack prepare pnpm@9.15.4 --activate && pnpm install && pnpm build && pnpm start
 ```
 
 macOS / Linux:
@@ -304,7 +302,6 @@ We welcome contributions. See the [contributing guide](CONTRIBUTING.md) for deta
 
 ## Community
 
-- [Discord](https://discord.gg/m4HZY7xNG3) — Join the community
 - [GitHub Issues](https://github.com/adryxportfolio/crixlyorg/issues) — bugs and feature requests
 - [GitHub Discussions](https://github.com/adryxportfolio/crixlyorg/discussions) — ideas and RFC
 

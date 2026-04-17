@@ -153,7 +153,7 @@ If you are asked to install a skill for the company or an agent you MUST read:
 - **Budget**: auto-paused at 100%. Above 80%, focus on critical tasks only.
 - **Escalate** via `chainOfCommand` when stuck. Reassign to manager or create a task for them.
 - **Hiring**: use `crixly-create-agent` skill for new agent creation workflows.
-- **Commit Co-author**: if you make a git commit you MUST add `Co-Authored-By: Crixly <noreply@crixly.ing>` to the end of each commit message
+- **Commit Co-author**: if you make a git commit you MUST add `Co-Authored-By: Crixly <noreply@crixly.org>` to the end of each commit message
 
 ## Comment Style (Required)
 
